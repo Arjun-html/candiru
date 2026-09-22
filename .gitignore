@@ -1,0 +1,3 @@
+.unswbc-build
+__pycache__/
+*.pyc
