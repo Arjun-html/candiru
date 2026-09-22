@@ -54,9 +54,19 @@ wall with food in sight.
   splits: parent + child == pre-split length). Population ceiling is
   `floor(T/2)`, so 64 dragons needs team total length >= 128.
 - **They stop.** 90% of their splits are done by round 313-445.
-- **The king needs no rule.** Their longest dragon climbs 5 -> 18 from round 100
-  simply because hitting the 64 cap makes `can_split` fail for everyone, so
-  survivors grow. Ours sat at 4 because we never reached the cap.
+- **The king needs no rule.** Their longest dragon grows simply because hitting
+  the 64 cap makes `can_split` fail for everyone, so survivors eat and grow.
+  Ours sat at 4 because we never reached the cap. There is no king trajectory;
+  there is a cap, and then food.
+
+  ⚠️ **Correction to an earlier version of this doc.** I first reported their
+  longest dragon climbing "5 -> 18" as a general pattern. That number is
+  **survivorship-biased** and should not be used. It came from filtering to
+  games that reached round 500 — but small maps end by elimination before then
+  and drop out of the filter, so the aggregate was dominated by Big Empty
+  (n=47) and Schooltime (n=37). Per map, the same eight teams finish at longest
+  **36 on Big Empty, 19 on Schooltime, 9 on Default, 4 on Queen Of Spades**.
+  Target the cap, not a length.
 
 Splitting off *half* (bot4's rule) is the worst of both: it never builds a swarm
 (both halves must regrow to 4) and it forfeits tiebreak 1.
@@ -87,3 +97,21 @@ length only second:
   battles are publicly viewable, so each one shows an opponent your strategy.
 - The autoscrim is ranked and automatic, every 2h, whenever you have an active
   submission. Not challenging anyone does not protect your rating.
+
+
+## 7. Still on the table: nobody is using `get_pearl_time()`
+
+Tiles expose the number of rounds until they next try to spawn a pearl, and no
+bot of ours reads it. Targeting a low countdown naively makes things *worse* —
+it pins dragons in place, because on Schooltime 86% of tiles never spawn, so a
+dragon always has some live tile in its window and oscillates between two of
+them while the board fills with food it never walks to.
+
+The fix is one condition: only walk to a countdown tile if the pearl will be
+there when you arrive, `countdown <= steps + 3`. In a separate bot built to
+imitate the top teams, that single change took Schooltime population from **7
+to 41 at round 100** and **21 to 62 at round 200**.
+
+Related: these maps are mostly dead ground. Schooltime has 326 live tiles out
+of 2400; Queen Of Spades 442 of 875. Map control of the fast-respawn blocks is
+where the income is.
