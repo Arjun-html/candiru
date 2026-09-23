@@ -80,7 +80,17 @@ floods tight maps with more dragons than reef_shark's threshold-gated splitting 
 especially on `default_small`/`queen_of_spades`/`trophy`. All thresholds (`LONG_THRESHOLD`,
 `PORTAL_AVOID_LENGTH`, `SPLIT_LENGTH`/`SPLIT_KEEP`, `AGGRESSIVE_SPLIT_LENGTH`/`_KEEP`,
 `PEARL_WEIGHT`/`POSITION_WEIGHT`) are arbitrary starting points, not tuned.
+## hammerhead_tactical — tactical upgrade on the current best bot
+A local variant of the current best-performing hammerhead line. It keeps the original
+"escape-check + BFS pearl target" logic but adds direct enemy-head danger scoring,
+safer split gating, and a stronger bias away from bad trades and narrow pockets when a
+pearl is not clearly worth the risk.
 
+This is a first implementation aimed at the bot's biggest weakness in replay play:
+self-inflicted death by short-sighted moves around enemy heads and crowding, especially
+when there are multiple nearby dragons or a split would leave us boxed in. The build is
+intentionally conservative: it preserves the proven survival logic, then adds tactical
+filters before moving.
 ## mako_shark — mothership + suicide bombers
 Dylan's idea: one long dragon that sheds a stream of aggressive kamikaze dragons, and
 occasionally another mothership. Roles need no communication: a dragon whose first turn is
