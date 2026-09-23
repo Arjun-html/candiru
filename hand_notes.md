@@ -1,4 +1,4 @@
-### Arjun
+# Arjun
 
 What I see from a lot of games watched till now-
 
@@ -23,3 +23,5 @@ What I see from a lot of games watched till now-
 6.) Dylan mentioned can we code up a mothership - to create one long dragon that drops out a lot of aggressive suicide bombing dragons and occassionally another mothership
 
 *on working with Opus and fleshing this out, we made mako shark*
+
+7.) we've lost quite a few battles on the leaderboard because the bot is too averse to entering portals. In this case, we simply couldn't get any length due to the fact we didn't enter the gameplay at all. Can we do something about this in our future sharks
