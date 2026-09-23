@@ -25,3 +25,7 @@ What I see from a lot of games watched till now-
 *on working with Opus and fleshing this out, we made mako shark*
 
 7.) we've lost quite a few battles on the leaderboard because the bot is too averse to entering portals. In this case, we simply couldn't get any length due to the fact we didn't enter the gameplay at all. Can we do something about this in our future sharks
+
+8.) Can we implement deterministic wall pushing strategies like seen in slitherio? In that game, there is the strategy to push the other worm against the wall, keep moving alongside them till you reach a corner, and because both of you are side to side, only the outer bot will survive. This could be quite effective in smaller maps.
+
+9.) can we add in any sonar functionality? Currently we don't makee use of it. I think we can use it for deciding which bot gets the pearl if it is in the middle of both currently I think what happens is the one with the higher id gets it, as it will move first. Need to check more before implementing this one.
