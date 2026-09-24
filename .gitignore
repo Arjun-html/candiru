@@ -1,3 +1,9 @@
 .unswbc-build
 __pycache__/
 *.pyc
+
+# Replay dirs from bot-vs-bot runs: hundreds of MB of binaries. results.csv is the record.
+replays_h2h/
+replays_h2h_v3/
+replays_portal/
+replays_roster_v3/

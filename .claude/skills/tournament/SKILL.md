@@ -97,6 +97,20 @@ bash .claude/skills/tournament/compare_bots.sh mako_shark mako_shark_v1         
 bash .claude/skills/tournament/compare_bots.sh mako_shark mako_shark_v1 bot4 bot2  # custom opponents
 SEED=2 OUT=replays_compare2 bash .claude/skills/tournament/compare_bots.sh a b     # another seed
 ```
+**When compare_bots.sh stops working:** once both versions beat the roster, it saturates --
+both sweep bot4/reef_shark/bot5, every row reads `W W`, and the log prints no final lengths to
+break the tie. Play the two against each other instead, both colours so first-move advantage
+cancels:
+```
+bash .claude/skills/tournament/head_to_head.sh hammerhead_kami hammerhead_port
+SEEDS="1 2 3 4 5" MAPS="maps/default.map" OUT=replays_h2h2 bash .claude/skills/tournament/head_to_head.sh a b
+```
+Read only the maps where the two bots' code can actually diverge. A change gated on portals
+cannot do anything on a map with no portal edges
+(`grep '^EDGE ' maps/X.map | awk '{print $3}' | sort | uniq -c`, type 2 = portal), so those
+games are a pure noise floor -- ours came out 8-10 across 18 games of byte-identical behaviour,
+with one map reading 1-5. That is the yardstick for how little a per-map cell means.
+
 Existing logs in `OUT` are reused, so re-running after editing one bot only replays that bot's
 games if you delete its logs (`rm replays_compare/*@@<bot>_vs_*`).
 
