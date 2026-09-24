@@ -59,8 +59,19 @@ and test them against each other locally via the arena/replay tooling.
   per-map claim.
 - `round 0: bot N died: no valid action` in a *completed* parallel run is the build-cache race,
   not the bot — rerun that game serially.
-- Run matches one at a time (parallelism 1) when Arjun is using the machine; a full-map round
-  robin vs three opponents takes ~15 min that way, so run it in the background.
+- Run matches **one at a time, always** -- not just when Arjun is on the machine. A single game
+  already spawns one process per dragon (up to 128), so 6 concurrent games put 773 Python
+  processes on 12 cores: rounds slowed to ~1s, one bot died with `exited with code 3221225794`
+  (0xC0000142, Windows resource exhaustion), and others logged `died: no valid action`
+  mid-game -- bots starved past their 25ms turn budget. Results from a loaded box are silently
+  wrong, not just slow. Game-level parallelism is not available here. Run it in the background.
+- Killing a run leaves the in-progress game's `.log` on disk looking like any other. It has no
+  `team X wins` line -- check for one before counting a log, or a half-played game silently
+  enters the tally.
+- Once two bots both beat the roster (bot4/reef_shark/bot5), `compare_bots.sh` cannot separate
+  them -- both sweep, and the log prints no final lengths. Use
+  `.claude/skills/tournament/head_to_head.sh` to play the two against each other instead, and
+  read only the maps where their code can actually differ.
 - Every tournament script appends its games to `results.csv` (repo root). `python
   .claude/skills/tournament/results.py matrix` prints the bot×bot win-rate matrix and the
   current deploy candidate — answer "which bot is strongest / what should we submit" from it,

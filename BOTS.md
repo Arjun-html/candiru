@@ -143,6 +143,59 @@ board saturates and the mothership gets boxed in regardless of pathing.
 
 ---
 
+## hammerhead / hammerhead_kami / hammerhead_port — safe-pocket pearl chaser
+
+**hammerhead** — BFS to the nearest pearl in the 7x7, but every candidate step is gated on
+a flood fill of the pocket behind it: a step is only taken if the reachable free space there is
+at least `length + 1` (capped at 12). If nothing has an escape it takes the roomiest step
+anyway. Splits 2 segments off every turn it can, until round 400. That one escape check is what
+stopped the bots killing themselves (17-1 vs tiger_shark).
+
+**hammerhead_kami** — hammerhead plus `enemy_head_trade()`: step into an adjacent *enemy
+head* when their visible segment count exceeds our length. A head-to-head kills both dragons,
+so it is a straight length swap, and we field many short dragons against their few long ones.
+62-28 vs hammerhead over 90 games. The docstring in its `main.py` lists three rejected
+alternatives (rho-based split pricing, later split cutoffs) and the measured population
+collapse after round 400 that none of them fixed.
+
+**hammerhead_port** — kami plus portal use. kami never crossed a portal on purpose: the
+BFS refused to path through one, and `is_safe`/`has_escape` judged a portal step by the tile
+`add_dir()` points at — which is *not* where the portal lands you, so the step was accepted
+or rejected on a tile the dragon never visits. Where that phantom tile is walled in, kami reads
+the only exit from its pocket as a dead end and circles at home all game, scoring whatever
+length it spawned with (the leaderboard losses Arjun flagged). Changes:
+- a portal edge is safe and counts as an escape by definition (`pocket_size` already treated
+  one as a way out; the per-step checks did not),
+- after `STARVE_TURNS` (6) turns with no pearl reachable in the window, a second BFS targets the
+  nearest portal edge and crosses it — a portal is a goal, never a waypoint, since where it
+  lands is unseeable,
+- `PORTAL_COOLDOWN` (25) turns before hunting another one, so the dragon does not bounce back
+  and forth through the same pair.
+
+`test_portal_seek.py` (repo root) is the check: a dragon sealed in a pearl-less pocket whose
+only exit is a portal onto a walled cell. kami never leaves in 200 turns; port leaves by turn 7
+(median).
+
+MEASURED: 20-16 vs hammerhead_kami over 36 games (the 6 maps that have portal edges, both
+colours, 3 seeds, all run serially). That is 55.6%, z = +0.67 -- a lean, not a result. The
+solid evidence is the defect it fixes, below.
+
+The first version triggered the portal hunt on hunger (6 turns with no reachable pearl), which
+fires constantly in open play: the whole swarm converged on the nearest portal mouth and rammed
+each other there. On `default` it took 73 head-to-heads to kami's 51 on similar total deaths,
+and since a cross-team head-to-head kills both dragons and counts for both sides, the extra ~22
+were friendly. Final dragon count on `default`, v1 vs v3, six games each:
+
+    v1 port:  4, 5 | 3, 4 | 1, 5      (pinned under 6 in every game, both colours)
+    v3 port:  6, 58 | 33, 5 | 6, 37
+    map:      0-6 under v1, 3-3 under v3
+
+NOT YET MEASURED: the case this was built for. None of the nine local maps seals a spawn area
+behind a portal, so kami never actually gets locked out here -- these 36 games measure the cost
+of carrying the fix (about zero), not its benefit. A map with the pathology would settle it.
+
+---
+
 ## Env vars
 
 - `BOT_SEED` — read by bot1, bot2, bot4, bot5 (anything using `random`) as
