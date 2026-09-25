@@ -14,7 +14,7 @@ from collections import deque
 import helper as unswbc
 from helper import Direction, Position
 
-SPLIT_CUTOFF = 400
+SPLIT_CUTOFF = 430
 ESCAPE_CAP = 15
 TACTICAL_HEAD_RANGE = 2
 SAFE_EXIT_MIN = 2
@@ -187,7 +187,8 @@ def adjacent_enemy_trade() -> Direction | None:
     here = ct.get_position()
     here_tile = ct.get_tile(here)
     for direction in Direction.get_direction_list():
-        if not here_tile.get_edge(direction).is_passable():
+        edge = here_tile.get_edge(direction)
+        if not edge.is_passable() or edge.is_portal():
             continue
         ahead = ct.get_tile(here.add_dir(direction))
         part = ahead.get_dragon() if ahead is not None else None
