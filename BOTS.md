@@ -91,6 +91,12 @@ self-inflicted death by short-sighted moves around enemy heads and crowding, esp
 when there are multiple nearby dragons or a split would leave us boxed in. The build is
 intentionally conservative: it preserves the proven survival logic, then adds tactical
 filters before moving.
+
+Current microstrategy tweaks focus on close combat without rewriting the bot: portal edges
+no longer count as "free escape" in local pocket checks, split turns are blocked unless the
+parent still has a roomy non-portal follow-up move, nearby friendly bodies now reduce move
+scores so children spread out instead of sealing each other in, and short dragons can take
+favorable head trades or short sprint kills against visibly longer enemy heads.
 ## mako_shark — mothership + suicide bombers
 Dylan's idea: one long dragon that sheds a stream of aggressive kamikaze dragons, and
 occasionally another mothership. Roles need no communication: a dragon whose first turn is
