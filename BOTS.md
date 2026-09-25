@@ -161,7 +161,10 @@ mass-splitters on tiny maps (Colosseum) or open maps where they hit the 64 cap (
 board saturates and the mothership gets boxed in regardless of pathing.
 
 ## hammerhead3.0
-TODO: strategy summary (forked from `hammerhead2.0`).
+Forked from `hammerhead2.0`, keeping the same pearl/BFS + local-tactics core but tightening the
+weakest replay pattern: crowd-driven over-splitting. `hammerhead3.0` only splits when the local
+7x7 is not already crowded and the parent has at least two roomy non-portal follow-up moves,
+which helps preserve space on pressure maps without changing the rest of the close-combat logic.
 
 ---
 

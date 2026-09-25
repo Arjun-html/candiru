@@ -22,14 +22,9 @@ SHORT_TRADE_LENGTH = 3
 PORTAL_PENALTY = 7.0
 FRIEND_CROWD_PENALTY = 3.5
 ENEMY_BODY_CROWD_PENALTY = 1.0
-OPENING_ROUNDS = 24
-SMALL_MAP_AREA = 169
-REVISIT_WINDOW = 8
-REVISIT_PENALTY = 2.0
 
 ct: unswbc.Controller
 game: unswbc.Game
-_trail: list[Position] = []
 
 random.seed(os.environ.get("BOT_SEED"))
 
@@ -127,14 +122,6 @@ def visible_segment_counts() -> dict[int, int]:
     return counts
 
 
-def observe_trail() -> None:
-    here = ct.get_position()
-    if not _trail or _trail[-1] != here:
-        _trail.append(here)
-    if len(_trail) > 4 * ct.get_length() + 8:
-        del _trail[: len(_trail) // 2]
-
-
 def mdist(a: Position, b: Position) -> int:
     dx = abs((a.x - b.x + game.width // 2) % game.width - game.width // 2)
     dy = abs((a.y - b.y + game.height // 2) % game.height - game.height // 2)
@@ -177,23 +164,6 @@ def crowding_score(position: Position) -> float:
     return score
 
 
-def min_enemy_distance(position: Position, heads) -> int:
-    if not heads:
-        return 99
-    return min(mdist(position, enemy_pos) for enemy_pos, _, _ in heads)
-
-
-def revisit_penalty(position: Position) -> float:
-    recent = _trail[-REVISIT_WINDOW:]
-    if position not in recent:
-        return 0.0
-    return REVISIT_PENALTY * recent.count(position)
-
-
-def small_map_opening() -> bool:
-    return game.get_round_num() <= OPENING_ROUNDS and game.width * game.height <= SMALL_MAP_AREA
-
-
 def legal_exit_count(position: Position) -> int:
     tile = ct.get_tile(position)
     if tile is None:
@@ -208,6 +178,18 @@ def legal_exit_count(position: Position) -> int:
         if ahead is None or ahead.get_dragon() is None:
             count += 1
     return count
+
+
+def local_pressure(radius: int = 2) -> int:
+    here = ct.get_position()
+    pressure = 0
+    for tile in ct.get_tiles():
+        part = tile.get_dragon()
+        if part is None or part.get_id() == ct.get_id():
+            continue
+        if mdist(here, part.get_position()) <= radius:
+            pressure += 1
+    return pressure
 
 
 def adjacent_enemy_trade() -> Direction | None:
@@ -295,7 +277,7 @@ def should_split() -> bool:
         return False
     if ct.get_length() < 4:
         return False
-    if small_map_opening():
+    if local_pressure() >= 5:
         return False
     head_pos = ct.get_position()
     for tile in ct.get_tiles():
@@ -303,17 +285,17 @@ def should_split() -> bool:
         if part is not None and part.is_head() and part.get_team() != ct.get_team():
             if mdist(head_pos, part.get_position()) <= 3:
                 return False
-    return any(
+    viable = sum(
         is_safe(direction)
         and not is_portal_step(direction)
         and has_escape(direction)
         and legal_exit_count(head_pos.add_dir(direction)) >= SAFE_EXIT_MIN
         for direction in Direction.get_direction_list()
     )
+    return viable >= 2
 
 
 def execute_turn() -> None:
-    observe_trail()
     sprint = sprint_kill_path()
     if sprint is not None:
         ct.make_moves(sprint)
@@ -343,7 +325,6 @@ def execute_turn() -> None:
     for direction in safe:
         destination = ct.get_position().add_dir(direction)
         exits = legal_exit_count(destination)
-        enemy_gap = min_enemy_distance(destination, heads)
         room = has_escape(direction)
         score = 0.0
         if step is not None and direction == step:
@@ -355,14 +336,8 @@ def execute_turn() -> None:
         score += enemy_pressure_score(direction, heads)
         score += 2.5 * exits
         score += crowding_score(destination)
-        if small_map_opening() and heads and enemy_gap <= 3:
-            score += 2.0 * enemy_gap
-            if exits < SAFE_EXIT_MIN:
-                score -= 6.0
         if step is None and direction == facing:
             score += 1.5
-        if step is None:
-            score -= revisit_penalty(destination)
         if is_portal_step(direction):
             score -= PORTAL_PENALTY
         scored.append((direction, score))
