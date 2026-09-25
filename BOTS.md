@@ -160,6 +160,9 @@ default_small: the mothership gets rammed before it has an escort), and bot4-sty
 mass-splitters on tiny maps (Colosseum) or open maps where they hit the 64 cap (help) — the
 board saturates and the mothership gets boxed in regardless of pathing.
 
+## hammerhead3.0
+TODO: strategy summary (forked from `hammerhead2.0`).
+
 ---
 
 ## Env vars
