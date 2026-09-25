@@ -91,6 +91,12 @@ self-inflicted death by short-sighted moves around enemy heads and crowding, esp
 when there are multiple nearby dragons or a split would leave us boxed in. The build is
 intentionally conservative: it preserves the proven survival logic, then adds tactical
 filters before moving.
+
+Current microstrategy tweaks focus on close combat without rewriting the bot: portal edges
+no longer count as "free escape" in local pocket checks, split turns are blocked unless the
+parent still has a roomy non-portal follow-up move, nearby friendly bodies now reduce move
+scores so children spread out instead of sealing each other in, and short dragons can take
+favorable head trades or short sprint kills against visibly longer enemy heads.
 ## mako_shark — mothership + suicide bombers
 Dylan's idea: one long dragon that sheds a stream of aggressive kamikaze dragons, and
 occasionally another mothership. Roles need no communication: a dragon whose first turn is
@@ -153,6 +159,12 @@ win, v1 loss).
 default_small: the mothership gets rammed before it has an escort), and bot4-style
 mass-splitters on tiny maps (Colosseum) or open maps where they hit the 64 cap (help) — the
 board saturates and the mothership gets boxed in regardless of pathing.
+
+## hammerhead3.0
+Forked from `hammerhead2.0`, keeping the same pearl/BFS + local-tactics core but tightening the
+weakest replay pattern: crowd-driven over-splitting. `hammerhead3.0` only splits when the local
+7x7 is not already crowded and the parent has at least two roomy non-portal follow-up moves,
+which helps preserve space on pressure maps without changing the rest of the close-combat logic.
 
 ---
 
